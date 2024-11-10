@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.26;
+pragma solidity 0.8.26;
 
 contract AuctionLeandroMatayoshi {
     address public owner;
@@ -47,6 +47,7 @@ contract AuctionLeandroMatayoshi {
         uint _extensionInSeconds
     ) {
         seller = _seller;
+        owner = msg.sender;
 
         // Time-related variables
         startTimestamp = block.timestamp;
@@ -81,7 +82,7 @@ contract AuctionLeandroMatayoshi {
             );
         } else {
             require(
-                msg.value <
+                msg.value >
                     highestBid +
                         (highestBid * minimumPercentageIncreaseInBid) /
                         100,
@@ -97,6 +98,7 @@ contract AuctionLeandroMatayoshi {
             );
         }
 
+        addresses.push(msg.sender);
         highestBidByAddress[msg.sender] = msg.value;
         highestBidder = msg.sender;
         highestBid = msg.value;
@@ -159,6 +161,12 @@ contract AuctionLeandroMatayoshi {
     }
 
     function endAuction() public onlyOwner auctionActive {
+        require(
+            block.timestamp >= startTimestamp + bidDurationInSeconds &&
+                block.timestamp >
+                latestBidTimestamp + extensionTimeAfterBidInSeconds,
+            "Auction is still active"
+        );
         auctionEnded = true;
 
         for (uint i = 0; i < addresses.length; i++) {
