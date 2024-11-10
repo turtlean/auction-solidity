@@ -77,12 +77,12 @@ contract AuctionLeandroMatayoshi {
 
         if (highestBid == 0) {
             require(
-                msg.value > initialValue,
+                msg.value >= initialValue,
                 "Bid should be higher than the initial value"
             );
         } else {
             require(
-                msg.value >
+                msg.value >=
                     highestBid +
                         (highestBid * minimumPercentageIncreaseInBid) /
                         100,
@@ -92,13 +92,14 @@ contract AuctionLeandroMatayoshi {
 
         if (highestBidByAddress[msg.sender] == 0) {
             assert(remainingBidsByAddress[msg.sender].length == 0);
+            // First time the address is registered
+            addresses.push(msg.sender);
         } else {
             remainingBidsByAddress[msg.sender].push(
                 highestBidByAddress[msg.sender]
             );
         }
 
-        addresses.push(msg.sender);
         highestBidByAddress[msg.sender] = msg.value;
         highestBidder = msg.sender;
         highestBid = msg.value;
